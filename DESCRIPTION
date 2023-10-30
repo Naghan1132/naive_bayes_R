@@ -9,5 +9,7 @@ Description: More about what it does (maybe more than one line)
 License: GPL-3
 Encoding: UTF-8
 URL : https://github.com/Naghan1132/naive_bayes_R
+Imports:
+    R6
 LazyData: true
 RoxygenNote: 7.2.3

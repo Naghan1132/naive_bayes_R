@@ -13,7 +13,6 @@
 #   Check Package:             'Ctrl + Shift + E'
 #   Test Package:              'Ctrl + Shift + T'
 
-library(R6)
 
 detection <- function(df,name_v_cible){
   if (name_v_cible %in% names(df)) {
@@ -49,9 +48,11 @@ classi <- function(df,name_v_cible){
   }
 }
 
+
 #' Une classe R6 pour un classificateur simple.
 #'
-#' Cette classe simule un classificateur avec des méthodes d'entraînement et de prédiction.
+#' Cette classe simule un classificateur avec des méthodes d'entrainement et de prédiction.
+#' @importFrom R6 R6Class
 #' @export
 Classifier <- R6Class("Classifier",
                       public = list(
@@ -61,19 +62,19 @@ Classifier <- R6Class("Classifier",
                           self$model <- "truc"
                         },
 
-                        # Méthode pour simuler l'entraînement du modèle
+                        # Méthode pour simuler l'entrainement du modèle
                         entrainer = function() {
-                          cat("Entraînement du modèle...\n")
-                          # Ici, vous pouvez simuler l'entraînement d'un modèle réel
-                          private$model <- "Modèle entraîné"
+                          cat("Entrainement du modele \n")
+                          # Ici, vous pouvez simuler l'entrainement d'un modèle réel
+                          private$model <- "Modele entraine"
                         },
 
                         # Méthode pour simuler la prédiction
-                        predire = function() {
+                        predict = function() {
                           if (is.null(private$model)) {
-                            stop("Le modèle n'a pas été entraîné.")
+                            stop("pas entraine")
                           } else {
-                            cat("Prédiction avec le modèle :", private$model, "\n")
+                            cat("prediction")
                             # Ici, vous pouvez simuler la prédiction d'un résultat réel
                           }
                         },
