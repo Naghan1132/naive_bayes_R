@@ -10,8 +10,12 @@ Cette classe simule un classificateur avec des méthodes d'entrainement et de pr
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-Classifier-new}{\code{Classifier$new()}}
-\item \href{#method-Classifier-entrainer}{\code{Classifier$entrainer()}}
+\item \href{#method-Classifier-preprocessing}{\code{Classifier$preprocessing()}}
+\item \href{#method-Classifier-test}{\code{Classifier$test()}}
+\item \href{#method-Classifier-naive_bayes_gaussian}{\code{Classifier$naive_bayes_gaussian()}}
+\item \href{#method-Classifier-fit}{\code{Classifier$fit()}}
 \item \href{#method-Classifier-predict}{\code{Classifier$predict()}}
+\item \href{#method-Classifier-predict_proba}{\code{Classifier$predict_proba()}}
 \item \href{#method-Classifier-summary}{\code{Classifier$summary()}}
 \item \href{#method-Classifier-clone}{\code{Classifier$clone()}}
 }
@@ -21,16 +25,43 @@ Cette classe simule un classificateur avec des méthodes d'entrainement et de pr
 \if{latex}{\out{\hypertarget{method-Classifier-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Classifier$new()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Classifier$new(df, name_y, method)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Classifier-entrainer"></a>}}
-\if{latex}{\out{\hypertarget{method-Classifier-entrainer}{}}}
-\subsection{Method \code{entrainer()}}{
+\if{html}{\out{<a id="method-Classifier-preprocessing"></a>}}
+\if{latex}{\out{\hypertarget{method-Classifier-preprocessing}{}}}
+\subsection{Method \code{preprocessing()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Classifier$entrainer()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Classifier$preprocessing(df)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Classifier-test"></a>}}
+\if{latex}{\out{\hypertarget{method-Classifier-test}{}}}
+\subsection{Method \code{test()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Classifier$test()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Classifier-naive_bayes_gaussian"></a>}}
+\if{latex}{\out{\hypertarget{method-Classifier-naive_bayes_gaussian}{}}}
+\subsection{Method \code{naive_bayes_gaussian()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Classifier$naive_bayes_gaussian(df, X, Y)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Classifier-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-Classifier-fit}{}}}
+\subsection{Method \code{fit()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Classifier$fit(X, y)}\if{html}{\out{</div>}}
 }
 
 }
@@ -39,7 +70,16 @@ Cette classe simule un classificateur avec des méthodes d'entrainement et de pr
 \if{latex}{\out{\hypertarget{method-Classifier-predict}{}}}
 \subsection{Method \code{predict()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Classifier$predict()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Classifier$predict(X)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Classifier-predict_proba"></a>}}
+\if{latex}{\out{\hypertarget{method-Classifier-predict_proba}{}}}
+\subsection{Method \code{predict_proba()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Classifier$predict_proba(X)}\if{html}{\out{</div>}}
 }
 
 }
