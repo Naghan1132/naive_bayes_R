@@ -3,59 +3,68 @@ library(R6)
 NaiveBayesClassifier = R6Class("NaiveBayesClassifier",
                                public = list(
                                  # predict_probas = NULL,
-                                 initialize = function(){
-                                   cat('Class instance of \"NaiveBayesClassifier\" created')
+                                 initialize = function(method){
+                                   if(!method %in% c("multinomial","gaussian")){
+                                     stop('ERROR : method can only be either "multinomial" or "gaussian"')
+                                   }
+                                   private$method = method
+                                   cat(paste0('Class instance of \"NaiveBayesClassifier\" ','(',private$method,')',' created'))
                                  },
                                  fit = function(X,Y) {
-                                   private$checkIntegrity(X,Y)
-                                   private$Xtrain = X
-                                   private$Y = Y
-                                   XTrainProcessedCat = private$encode(X[sapply(X,is.factor)])
-                                   private$fitDiscretizationQuantiles(X[sapply(X,is.numeric)])
-                                   XtrainProcessedNum = private$discretize(X[sapply(X,is.numeric)])
-                                   private$X = cbind(XTrainProcessedCat,XtrainProcessedNum)
-                                   private$class_probas = table(private$Y)/sum(table(private$Y))
-                                   sapply(unique(private$Y), function(y){
-                                     subset = private$X[private$Y==y,]
-                                     sapply(names(subset),function(col){
-                                       private$conditional_probas[[paste(y, col)]] <<- table(subset[, col]) / nrow(subset)
+                                   if(private$method=="multinomial"){
+                                     private$checkIntegrity(X,Y)
+                                     private$Xtrain = X
+                                     private$Y = Y
+                                     XTrainProcessedCat = private$encode(X[sapply(X,is.factor)])
+                                     private$fitDiscretizationQuantiles(X[sapply(X,is.numeric)])
+                                     XtrainProcessedNum = private$discretize(X[sapply(X,is.numeric)])
+                                     private$X = cbind(XTrainProcessedCat,XtrainProcessedNum)
+                                     private$class_probas = table(private$Y)/sum(table(private$Y))
+                                     sapply(unique(private$Y), function(y){
+                                       subset = private$X[private$Y==y,]
+                                       sapply(names(subset),function(col){
+                                         private$conditional_probas[[paste(y, col)]] <<- table(subset[, col]) / nrow(subset)
+                                       })
                                      })
-                                   })
+                                   }
                                  },
                                  predict = function(X){
-                                   predict_probas = self$predict_probas(X)
-                                   return(colnames(predict_probas)[max.col(predict_probas)])
+                                   if(private$method=="multinomial"){
+                                     predict_probas = self$predict_probas(X)
+                                     return(colnames(predict_probas)[max.col(predict_probas)])
+                                   }
                                  },
                                  predict_probas = function(X){
                                    if (!setequal(names(X), names(private$Xtrain)) || !setequal(sapply(X, class), sapply(private$Xtrain, class))) {
                                      cat("ERROR : Test dataset should be of the same structure as dataset used in fit, here is the structure of the training set : \n")
                                      return(str(private$Xtrain))
                                    }
-                                   
-                                   index=1
-                                   individual=1
-                                   conditional=1
-                                   XTestProcessedCat = private$encode(X[sapply(X,is.factor)])
-                                   XTestProcessedNum = private$discretize(X[sapply(X,is.numeric)])
-                                   XTestProcessed = cbind(XTestProcessedCat,XTestProcessedNum)
-                                   predict_probas = matrix(nrow=nrow(XTestProcessed),ncol=length(unique(private$Y)))
-                                   colnames(predict_probas) = unique(private$Y)
-                                   sapply(1:nrow(XTestProcessed),function(line){
-                                     sapply(unique(private$Y),function(y){
-                                       class_probas <- private$class_probas[y]
-                                       sapply(names(XTestProcessed),function(x){
-                                         if(!is.na(private$conditional_probas[[paste(y, x)]][as.character(XTestProcessed[line,x])])){
-                                           conditional = conditional * private$conditional_probas[[paste(y, x)]][as.character(XTestProcessed[line,x])]
-                                         }
-                                         class_probas = class_probas * conditional
-                                         predict_probas[individual,index] <<- class_probas
-                                         # self$predict_probas[individual,index] <<- ifelse(is.na(self$predict_probas[individual,index]),1,ifelse(self$predict_probas[individual,index]==0,1,self$predict_probas[individual,index])) * self$conditional_probas[[paste(y, x)]][as.character(XTestProcessed[line,x])]
+                                   if(private$method=="multinomial"){
+                                     index=1
+                                     individual=1
+                                     conditional=1
+                                     XTestProcessedCat = private$encode(X[sapply(X,is.factor)])
+                                     XTestProcessedNum = private$discretize(X[sapply(X,is.numeric)])
+                                     XTestProcessed = cbind(XTestProcessedCat,XTestProcessedNum)
+                                     predict_probas = matrix(nrow=nrow(XTestProcessed),ncol=length(unique(private$Y)))
+                                     colnames(predict_probas) = unique(private$Y)
+                                     sapply(1:nrow(XTestProcessed),function(line){
+                                       sapply(unique(private$Y),function(y){
+                                         class_probas <- private$class_probas[y]
+                                         sapply(names(XTestProcessed),function(x){
+                                           if(!is.na(private$conditional_probas[[paste(y, x)]][as.character(XTestProcessed[line,x])])){
+                                             conditional = conditional * private$conditional_probas[[paste(y, x)]][as.character(XTestProcessed[line,x])]
+                                           }
+                                           class_probas = class_probas * conditional
+                                           predict_probas[individual,index] <<- class_probas
+                                           # self$predict_probas[individual,index] <<- ifelse(is.na(self$predict_probas[individual,index]),1,ifelse(self$predict_probas[individual,index]==0,1,self$predict_probas[individual,index])) * self$conditional_probas[[paste(y, x)]][as.character(XTestProcessed[line,x])]
+                                         })
+                                         index <<- index + 1
                                        })
-                                       index <<- index + 1
+                                       index <<- 1
+                                       individual <<- individual+1
                                      })
-                                     index <<- 1
-                                     individual <<- individual+1
-                                   })
+                                   }
                                    return(predict_probas)
                                  }
                                ),
@@ -66,7 +75,7 @@ NaiveBayesClassifier = R6Class("NaiveBayesClassifier",
                                  conditional_probas = NULL,
                                  class_probas = NULL,
                                  quantiles_dict = NULL,
-                                 
+                                 method = "multinomial",
                                  #Vérification du type des vecteurs d'entrée
                                  checkIntegrity = function(X,Y){
                                    isValidX = all(sapply(X, function(x) class(x) %in% c("factor","numeric","integer")))
@@ -78,7 +87,7 @@ NaiveBayesClassifier = R6Class("NaiveBayesClassifier",
                                      stop("ERROR : The predictive variables can only be of class a factor")
                                    }
                                    if(length(unique(Y))<2){
-                                     stop("ERROR : You need to at least have 2 different classes in your target var")
+                                     stop("ERROR : You need to at least have 2 different classes in your target variables")
                                    }
                                  },
                                  fitDiscretizationQuantiles = function(data,K=4){
@@ -171,14 +180,14 @@ NaiveBayesClassifier = R6Class("NaiveBayesClassifier",
                                )
                             )
 
-# nbc = NaiveBayesClassifier$new()
-# nbc$fit(X = Titanic[-c(6, 21, 11, 2, 29, 20, 5, 16, 26, 31),-1],Y=Titanic$Class)
-# Xtest = data.frame(
-#   Freq = c(5,10,300,8),
-#   Sex = as.factor(c("Male","Female","Male","Female")),
-#   Survived = as.factor(c("No","Yes","No","Yes")),
-#   Age = as.factor(c("Adult","Child","Child","Child"))
-# )
-# print(nbc$predict_probas(Xtest))
-# print(nbc$predict(Xtest))
+nbc = NaiveBayesClassifier$new("multinomial")
+nbc$fit(X = Titanic[-c(6, 21, 11, 2, 29, 20, 5, 16, 26, 31),-1],Y=Titanic$Class)
+Xtest = data.frame(
+  Freq = c(5,10,300,8),
+  Sex = as.factor(c("Male","Female","Male","Female")),
+  Survived = as.factor(c("No","Yes","No","Yes")),
+  Age = as.factor(c("Adult","Child","Child","Child"))
+)
+print(nbc$predict_probas(Xtest))
+print(nbc$predict(Xtest))
 
