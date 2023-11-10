@@ -180,14 +180,14 @@ NaiveBayesClassifier = R6Class("NaiveBayesClassifier",
                                )
                             )
 
-nbc = NaiveBayesClassifier$new("multinomial")
-nbc$fit(X = Titanic[-c(6, 21, 11, 2, 29, 20, 5, 16, 26, 31),-1],Y=Titanic$Class)
-Xtest = data.frame(
-  Freq = c(5,10,300,8),
-  Sex = as.factor(c("Male","Female","Male","Female")),
-  Survived = as.factor(c("No","Yes","No","Yes")),
-  Age = as.factor(c("Adult","Child","Child","Child"))
-)
-print(nbc$predict_probas(Xtest))
-print(nbc$predict(Xtest))
+# nbc = NaiveBayesClassifier$new("multinomial")
+# nbc$fit(X = Titanic[-c(6, 21, 11, 2, 29, 20, 5, 16, 26, 31),-1],Y=Titanic$Class)
+# Xtest = data.frame(
+#   Freq = c(5,10,300,8),
+#   Sex = as.factor(c("Male","Female","Male","Female")),
+#   Survived = as.factor(c("No","Yes","No","Yes")),
+#   Age = as.factor(c("Adult","Child","Child","Child"))
+# )
+# print(nbc$predict_probas(Xtest))
+# print(nbc$predict(Xtest))
 
