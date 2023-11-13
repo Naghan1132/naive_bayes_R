@@ -8,7 +8,7 @@ NaiveBayesClassifier = R6Class("NaiveBayesClassifier",
                                      stop('ERROR : method can only be either "multinomial" or "gaussian"')
                                    }
                                    private$method = method
-                                   cat(paste0('Class instance of \"NaiveBayesClassifier\" ','(',private$method,')',' created'))
+                                   cat(paste0('Class instance of \"NaiveBayesClassifier\" ','(',private$method,')',' created \n'))
                                  },
                                  fit = function(X,Y) {
                                    if(private$method=="multinomial"){
@@ -66,6 +66,28 @@ NaiveBayesClassifier = R6Class("NaiveBayesClassifier",
                                      })
                                    }
                                    return(predict_probas)
+                                 },
+                                 print = function(){
+                                   stringPrint = ifelse(is.null(private$class_probas),paste0("Unfitted object instance of","<",paste0(toupper(substr(private$method,1,1)),substr(private$method,2,nchar(private$method))),"NaiveBayesClassifier>"),paste0("Fitted object instance of <",paste0(toupper(substr(private$method,1,1)),substr(private$method,2,nchar(private$method)),"NaiveBayesClassifier>")))
+                                   print(stringPrint)
+                                 },
+                                 summary = function(){
+                                   if(!is.null(private$class_probas)){
+                                     conditional_probas = ""
+                                     cat("$conditional_probas \n")
+                                     for(name in names(private$conditional_probas)){
+                                       for(modal in private$conditional_probas[name]){
+                                         cat(paste0(conditional_probas,c(name,paste0(names(modal)," : ",modal))," \n"))
+                                       }
+                                     }
+                                     cat("\n")
+                                     return(
+                                       list(
+                                         class_probas = private$class_probas,
+                                         training_set = as.data.frame(cbind(private$Xtrain,Class=private$Y))
+                                       )
+                                    )
+                                   }
                                  }
                                ),
                                private = list(
@@ -180,14 +202,20 @@ NaiveBayesClassifier = R6Class("NaiveBayesClassifier",
                                )
                             )
 
-# nbc = NaiveBayesClassifier$new("multinomial")
-# nbc$fit(X = Titanic[-c(6, 21, 11, 2, 29, 20, 5, 16, 26, 31),-1],Y=Titanic$Class)
-# Xtest = data.frame(
-#   Freq = c(5,10,300,8),
-#   Sex = as.factor(c("Male","Female","Male","Female")),
-#   Survived = as.factor(c("No","Yes","No","Yes")),
-#   Age = as.factor(c("Adult","Child","Child","Child"))
-# )
-# print(nbc$predict_probas(Xtest))
-# print(nbc$predict(Xtest))
+nbc = NaiveBayesClassifier$new("multinomial")
+print(nbc)
+data(Titanic)
+Titanic = as.data.frame(Titanic)
+
+nbc$fit(X = Titanic[-c(6, 21, 11, 2, 29, 20, 5, 16, 26, 31),-1],Y=Titanic[-c(6, 21, 11, 2, 29, 20, 5, 16, 26, 31),1])
+print(nbc)
+nbc$summary()
+Xtest = data.frame(
+  Freq = c(5,10,300,8),
+  Sex = as.factor(c("Male","Female","Male","Female")),
+  Survived = as.factor(c("No","Yes","No","Yes")),
+  Age = as.factor(c("Adult","Child","Child","Child"))
+)
+print(nbc$predict_probas(Xtest))
+print(nbc$predict(Xtest))
 
