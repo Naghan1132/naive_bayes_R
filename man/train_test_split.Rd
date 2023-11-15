@@ -9,7 +9,8 @@ train_test_split(data, train_size = 0.7, stratify = NULL, seed = NULL)
 \arguments{
 \item{data}{a data.frame}
 
-\item{train_size}{a number between 0 and 1 portion of number to include in train set}
+\item{train_size}{a number between 0 and 1 portion of number
+to include in train set}
 
 \item{stratify}{a character the name of column to be use to strafied data}
 
