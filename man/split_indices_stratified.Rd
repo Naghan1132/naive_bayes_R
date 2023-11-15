@@ -9,7 +9,8 @@ split_indices_stratified(labels, train_size)
 \arguments{
 \item{labels}{an array of labels to use to stratify data}
 
-\item{train_size}{a number between 0 and 1 portion of number to include in train set}
+\item{train_size}{a number between 0 and 1 portion of number
+to include in train set}
 }
 \value{
 indexes of train samples
