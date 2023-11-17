@@ -1,0 +1,31 @@
+Package: NaiveBayes
+Type: Package
+Title: NaiveBayes
+Version: 0.1.0
+Authors@R:
+    c(person(given = "Nathan",
+           family = "Grimault",
+           email = "yourself3@univ-lyon2.fr",
+           role = c("aut", "cre")
+           ),
+      person(given = "Moïse",
+           family = "Berthé",
+           email = "yourself@univ-lyon2.fr",
+           role = c("ctb")
+           ),
+      person(given = "Léo",
+           family = "Gondouin",
+           email = "yoursel2f@univ-lyon2.fr",
+           role = c("ctb")
+           )
+  )
+Maintainer: The package maintainer <yourself@univ-lyon2.fr>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: GPL-3
+Encoding: UTF-8
+URL : https://github.com/Naghan1132/naive_bayes_R
+Imports:
+    R6
+LazyData: true
+RoxygenNote: 7.2.3
