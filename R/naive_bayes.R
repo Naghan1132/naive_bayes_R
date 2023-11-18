@@ -55,7 +55,7 @@ naive_bayes <- R6Class("naive_bayes",
         posteriors[idx] <- posterior
       }
       if (with_prob) {
-        return(softmax(posteriors))
+        return(metrics$softmax(posteriors))
       } else {
         return(self$classes[which.max(posteriors)])
       }
@@ -66,7 +66,7 @@ naive_bayes <- R6Class("naive_bayes",
     },
     predict_proba = function(x) {
       ypred <- apply(x, 1, function(row) self$predict_(row, with_prob = TRUE))
-      return(ypred)
+      return(t(ypred))
     },
     print = function(...) {
       print("Moyenne : ")

@@ -20,3 +20,8 @@ metrics$precision_score <-  function(ytrue, ypred) {
   conf_mat <- table(ytrue, ypred)
   return(diag(conf_mat / colSums(conf_mat)))
 }
+metrics$softmax <- function(logits) {
+  exp_logits <- exp(logits)
+  probabilities <- exp_logits / sum(exp_logits)
+  return(probabilities)
+}
