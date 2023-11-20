@@ -2,17 +2,68 @@
 % Please edit documentation in R/naive_bayes.R
 \name{naive_bayes}
 \alias{naive_bayes}
-\title{naive_bayes}
+\title{naive_bayes - R6 Class for Naive Bayes Classification}
 \description{
 This class implements a supervised learning methods based on applying Bayes’
 theorem with strong (naive) feature independence assumption
+}
+\examples{
+
+## ------------------------------------------------
+## Method `naive_bayes$fit`
+## ------------------------------------------------
+
+data <- data.frame(
+  feature1 = c(1, 2, 3, 4),
+  feature2 = c(5, 6, 7, 8),
+  class = c('A', 'B', 'A', 'B')
+)
+classifier <- naive_bayes$new()
+classifier$fit(data[, c('feature1', 'feature2')], data$class)
+
+
+## ------------------------------------------------
+## Method `naive_bayes$predict`
+## ------------------------------------------------
+
+new_data <- data.frame(feature1 = c(1, 2), feature2 = c(5, 6))
+ypred <- classifier$predict(new_data)
+print(ypred)
+
+
+## ------------------------------------------------
+## Method `naive_bayes$predict_proba`
+## ------------------------------------------------
+
+new_data <- data.frame(feature1 = c(1, 2), feature2 = c(5, 6))
+probabilities <- classifier$predict_proba(new_data)
+print(probabilities)
+
+
+## ------------------------------------------------
+## Method `naive_bayes$print`
+## ------------------------------------------------
+
+print(classifier)
+
+}
+\section{Public fields}{
+\if{html}{\out{<div class="r6-fields">}}
+\describe{
+\item{\code{classes}}{distinct classes}
+
+\item{\code{mean_}}{conditional mean}
+
+\item{\code{var_}}{conditional standard deviation}
+
+\item{\code{prior_}}{propabality of each class}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-naive_bayes-fit}{\code{naive_bayes$fit()}}
-\item \href{#method-naive_bayes-prob}{\code{naive_bayes$prob()}}
-\item \href{#method-naive_bayes-predict_}{\code{naive_bayes$predict_()}}
 \item \href{#method-naive_bayes-predict}{\code{naive_bayes$predict()}}
 \item \href{#method-naive_bayes-predict_proba}{\code{naive_bayes$predict_proba()}}
 \item \href{#method-naive_bayes-print}{\code{naive_bayes$print()}}
@@ -23,26 +74,36 @@ theorem with strong (naive) feature independence assumption
 \if{html}{\out{<a id="method-naive_bayes-fit"></a>}}
 \if{latex}{\out{\hypertarget{method-naive_bayes-fit}{}}}
 \subsection{Method \code{fit()}}{
+This method trains a Naive Bayes classifier on the given training data.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naive_bayes$fit(x, y)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{A data frame or matrix containing the feature variables.}
+
+\item{\code{y}}{A vector or factor containing the class labels.}
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-naive_bayes-prob"></a>}}
-\if{latex}{\out{\hypertarget{method-naive_bayes-prob}{}}}
-\subsection{Method \code{prob()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{naive_bayes$prob(label, x)}\if{html}{\out{</div>}}
+\if{html}{\out{</div>}}
 }
+\subsection{Returns}{
+Invisibly returns the trained naive_bayes object.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{data <- data.frame(
+  feature1 = c(1, 2, 3, 4),
+  feature2 = c(5, 6, 7, 8),
+  class = c('A', 'B', 'A', 'B')
+)
+classifier <- naive_bayes$new()
+classifier$fit(data[, c('feature1', 'feature2')], data$class)
 
 }
-\if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-naive_bayes-predict_"></a>}}
-\if{latex}{\out{\hypertarget{method-naive_bayes-predict_}{}}}
-\subsection{Method \code{predict_()}}{
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{naive_bayes$predict_(x, with_prob = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{</div>}}
+
 }
 
 }
@@ -50,8 +111,32 @@ theorem with strong (naive) feature independence assumption
 \if{html}{\out{<a id="method-naive_bayes-predict"></a>}}
 \if{latex}{\out{\hypertarget{method-naive_bayes-predict}{}}}
 \subsection{Method \code{predict()}}{
+This method predicts class labels for new data using the trained Naive
+Bayes classifier.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naive_bayes$predict(x)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{A data frame or matrix containing the feature variables
+for which to predict class labels.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A vector of predicted class labels.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{new_data <- data.frame(feature1 = c(1, 2), feature2 = c(5, 6))
+ypred <- classifier$predict(new_data)
+print(ypred)
+
+}
+\if{html}{\out{</div>}}
+
 }
 
 }
@@ -59,8 +144,33 @@ theorem with strong (naive) feature independence assumption
 \if{html}{\out{<a id="method-naive_bayes-predict_proba"></a>}}
 \if{latex}{\out{\hypertarget{method-naive_bayes-predict_proba}{}}}
 \subsection{Method \code{predict_proba()}}{
+This method predicts class probabilities for new data using the trained
+Naive Bayes classifier.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naive_bayes$predict_proba(x)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{x}}{A data frame or matrix containing the feature variables
+for which to predict class probabilities.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A data frame with columns representing class labels and their
+        corresponding probabilities for each observation in new_data.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{new_data <- data.frame(feature1 = c(1, 2), feature2 = c(5, 6))
+probabilities <- classifier$predict_proba(new_data)
+print(probabilities)
+
+}
+\if{html}{\out{</div>}}
+
 }
 
 }
@@ -68,8 +178,29 @@ theorem with strong (naive) feature independence assumption
 \if{html}{\out{<a id="method-naive_bayes-print"></a>}}
 \if{latex}{\out{\hypertarget{method-naive_bayes-print}{}}}
 \subsection{Method \code{print()}}{
+This method prints a summary of the naive_bayes object,
+including information about the trained model.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naive_bayes$print(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{Additional parameters to be passed to the print method.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Prints a summary of the naive_bayes object.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{print(classifier)
+
+}
+\if{html}{\out{</div>}}
+
 }
 
 }

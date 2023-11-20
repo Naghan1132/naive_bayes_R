@@ -7,18 +7,36 @@
 train_test_split(data, train_size = 0.7, stratify = NULL, seed = NULL)
 }
 \arguments{
-\item{data}{a data.frame}
+\item{data}{A data frame or matrix containing the dataset to be split.}
 
-\item{train_size}{a number between 0 and 1 portion of number
-to include in train set}
+\item{train_size}{The proportion of the dataset to include in the
+train set. Should be a value between 0 and 1.}
 
-\item{stratify}{a character the name of column to be use to strafied data}
+\item{stratify}{A character indicating the name of class labels for
+stratified sampling. If provided, the split will
+maintain the same distribution of class labels in
+both the train and test sets.}
 
-\item{seed}{a number to fixed sample generator}
+\item{seed}{An optional seed for reproducibility. If NULL, no seed is set.}
+}
+\value{
+A list containing the train and test sets.
 }
 \description{
-train_test_split
+This function splits the input data into train and test sets.
 }
 \examples{
-train_test_split(iris, train_size = 0.7, stratify = "Species", seed = 123)
+data <- data.frame(
+  features = rnorm(100),
+  labels = sample(c('A', 'B'), 100, replace = TRUE)
+)
+split_data <- train_test_split(
+  data,
+  train_size = 0.7,
+  stratify = "labels",
+  seed = 123
+)
+print(head(split_data$train_set))
+print(head(split_data$test_set))
+
 }
