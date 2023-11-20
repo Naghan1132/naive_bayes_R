@@ -7,13 +7,13 @@
 split_indices_stratified(labels, train_size)
 }
 \arguments{
-\item{labels}{an array of labels to use to stratify data}
+\item{labels}{A vector or factor containing the class labels}
 
-\item{train_size}{a number between 0 and 1 portion of number
-to include in train set}
+\item{train_size}{The proportion of the dataset to include in the
+train set. Should be a value between 0 and 1.}
 }
 \value{
-indexes of train samples
+A list containing the indexes of train samples
 }
 \description{
 Title

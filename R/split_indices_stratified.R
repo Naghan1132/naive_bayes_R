@@ -1,12 +1,11 @@
 #' Title
 #'
-#' @param labels an array of labels to use to stratify data
-#' @param train_size a number between 0 and 1 portion of number
-#' to include in train set
+#' @param labels  A vector or factor containing the class labels
+#' @param train_size The proportion of the dataset to include in the
+#'                    train set. Should be a value between 0 and 1.
 #'
-#' @return indexes of train samples
+#' @return A list containing the indexes of train samples
 #'
-#' @examples
 split_indices_stratified <- function(labels, train_size) {
 
   unique_labels <- unique(labels)

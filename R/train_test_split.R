@@ -1,16 +1,36 @@
 #' train_test_split
 #'
-#' @param data a data.frame
-#' @param train_size a number between 0 and 1 portion of number
-#' to include in train set
-#' @param stratify a character the name of column to be use to strafied data
-#' @param seed a number to fixed sample generator
+#' This function splits the input data into train and test sets.
 #'
-#' @return
+#' @param data A data frame or matrix containing the dataset to be split.
+#'
+#' @param train_size The proportion of the dataset to include in the
+#'                    train set. Should be a value between 0 and 1.
+#'
+#' @param stratify A character indicating the name of class labels for
+#'                 stratified sampling. If provided, the split will
+#'                 maintain the same distribution of class labels in
+#'                 both the train and test sets.
+#'
+#' @param seed An optional seed for reproducibility. If NULL, no seed is set.
+#'
+#' @return A list containing the train and test sets.
 #' @export
 #'
 #' @examples
-#' train_test_split(iris, train_size = 0.7, stratify = "Species", seed = 123)
+#' data <- data.frame(
+#'   features = rnorm(100),
+#'   labels = sample(c('A', 'B'), 100, replace = TRUE)
+#' )
+#' split_data <- train_test_split(
+#'   data,
+#'   train_size = 0.7,
+#'   stratify = "labels",
+#'   seed = 123
+#' )
+#' print(head(split_data$train_set))
+#' print(head(split_data$test_set))
+#'
 train_test_split <- function(
   data,
   train_size = 0.7,
@@ -33,7 +53,7 @@ train_test_split <- function(
     train_index <- unlist(stratified_index$train)
   } else {
     train_index <- sample(
-      seq_len(nrow(iris)),
+      seq_len(nrow(data)),
       size = floor(train_size * nrow(data))
     )
   }
