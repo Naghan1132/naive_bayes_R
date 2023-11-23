@@ -85,7 +85,7 @@ In order to use our package, you should install it from Github.
   Xtest = sets$test_set[-5]
   ytest = sets$test_set[[5]]
   ```
-  ![Train test split](screenshots/train-testsplit.png)
+  ![Train test split](http://www.image-heberg.fr/files/1700750227111926983.png)
 
   ### 3.2 Naive bayes classifier
   Pour utiliser le classifier vous devez instancier la classe `naive_bayes`.
