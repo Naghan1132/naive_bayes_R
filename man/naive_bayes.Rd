@@ -50,13 +50,17 @@ print(classifier)
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{classes}}{distinct classes}
+\item{\code{classes_}}{distinct classes}
 
-\item{\code{mean_}}{conditional mean}
+\item{\code{theta_}}{Mean of each feature per class}
 
-\item{\code{var_}}{conditional standard deviation}
+\item{\code{sigma_}}{Variance of each feature per class}
 
-\item{\code{prior_}}{propabality of each class}
+\item{\code{prior_}}{probability of each class}
+
+\item{\code{feature_importance}}{Importance of each feature}
+
+\item{\code{feature_names_in_}}{Names of features seen during fit}
 }
 \if{html}{\out{</div>}}
 }
@@ -67,6 +71,7 @@ print(classifier)
 \item \href{#method-naive_bayes-predict}{\code{naive_bayes$predict()}}
 \item \href{#method-naive_bayes-predict_proba}{\code{naive_bayes$predict_proba()}}
 \item \href{#method-naive_bayes-print}{\code{naive_bayes$print()}}
+\item \href{#method-naive_bayes-summary}{\code{naive_bayes$summary()}}
 \item \href{#method-naive_bayes-clone}{\code{naive_bayes$clone()}}
 }
 }
@@ -201,6 +206,15 @@ Prints a summary of the naive_bayes object.
 }
 \if{html}{\out{</div>}}
 
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-naive_bayes-summary"></a>}}
+\if{latex}{\out{\hypertarget{method-naive_bayes-summary}{}}}
+\subsection{Method \code{summary()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{naive_bayes$summary()}\if{html}{\out{</div>}}
 }
 
 }

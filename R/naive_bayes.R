@@ -8,14 +8,23 @@
 #' @export
 naive_bayes <- R6Class("naive_bayes",
   public = list(
-    #' @field classes distinct classes
-    classes = NULL,
-    #' @field mean_ conditional mean
-    mean_ = NULL,
-    #' @field var_ conditional standard deviation
-    var_ = NULL,
-    #' @field prior_ propabality of each class
+    #' @field classes_ distinct classes
+    classes_ = NULL,
+
+    #' @field theta_ Mean of each feature per class
+    theta_ = NULL,
+
+    #' @field sigma_ Variance of each feature per class
+    sigma_ = NULL,
+
+    #' @field prior_ probability of each class
     prior_ = NULL,
+
+    #' @field feature_importance Importance of each feature
+    feature_importance = NULL,
+
+    #' @field feature_names_in_ Names of features seen during fit
+    feature_names_in_ = NULL,
 
     #' @description
     #' This method trains a Naive Bayes classifier on the given training data.
@@ -35,25 +44,35 @@ naive_bayes <- R6Class("naive_bayes",
     #' classifier$fit(data[, c('feature1', 'feature2')], data$class)
     #'
     fit = function(x, y) {
+      private$training_set <- cbind(head(x), "target" = head(y))
+
+      # Encode data before fit
       x <- private$encode(x)
+
       d <- dim(x)
       private$n_samples <- d[1]
       private$n_features <- d[2]
-      self$classes <- unique(y)
-      n_classes <- length(self$classes)
 
-      self$mean_ <- t(sapply(
-        self$classes,
+      self$classes_ <- unique(y)
+      self$feature_names_in_ <- colnames(x)
+
+      # Calculate mean of each feature by class labels
+      self$theta_ <- t(sapply(
+        self$classes_,
         function(class_) colMeans(x[y == class_, ])
       ))
-      self$var_ <- t(sapply(
-        self$classes,
+      # Calculate  variance of each feature by class labels
+      self$sigma_ <- t(sapply(
+        self$classes_,
         function(class_) apply(x[y == class_, ], 2, var)
       ))
+      # Calculate class probability
       self$prior_ <- sapply(
-        self$classes,
+        self$classes_,
         function(class_) sum(y == class_) / private$n_samples
       )
+      # Calculate feature importance based on a model's parameters.
+      self$feature_importance <- (diff(self$theta_))^2 / colSums(self$sigma_)
     },
 
     #' @description
@@ -94,7 +113,7 @@ naive_bayes <- R6Class("naive_bayes",
     predict_proba = function(x) {
       x <- private$encode(x)
       ypred <- t(apply(x, 1, function(row) private$predict_(row, TRUE)))
-      colnames(ypred) <- self$classes
+      colnames(ypred) <- self$classes_
       return(ypred)
     },
 
@@ -110,45 +129,62 @@ naive_bayes <- R6Class("naive_bayes",
     #' print(classifier)
     #'
     print = function(...) {
-      print("Moyenne : ")
-      print(self$mean_)
-      print("Ecart-type : ")
-      print(self$var_)
+      string_status <- ifelse(
+        is.null(private$training_set),
+        "Unfitted",
+        "Fitted"
+      )
+      print(paste(string_status, "object of class <naive_bayes>"))
+    },
+
+    summary = function() {
+      self$print()
+      if (!is.null(private$training_set)) {
+        print("Training set sample :")
+        print(private$training_set)
+        print("Prior probas : ")
+        print(paste(self$classes_, "":"", self$prior_))
+        print("Conditional means : ")
+        print(as.data.frame(self$theta_, row.names = self$classes_))
+        print("Conditional variances : ")
+        print(as.data.frame(self$sigma_, row.names = self$classes_))
+      }
     }
   ),
   private = list(
     n_samples = NULL,
     n_features = NULL,
     encoder_ = NULL,
+    training_set = NULL,
 
     encode = function(data) {
-      # do nothing if there is no categorical variables
+      # Do nothing if there is no categorical variables
       if (sum(sapply(data, is.numeric)) == ncol(data)) {
         return(data)
       }
-      # initialize encoder if it's not done yet
+      # Initialize encoder if it's not done yet
       if (is.null(private$encoder_)) {
         private$encoder_ <- encoder$new()
       }
-      # get the indexes of categorical variables having more than 3 modalities
+      # Get the indexes of categorical variables having more than 3 modalities
       cols_to_label_encode <- which(
         sapply(data,
           function(col) (!is.numeric(col) && length(unique(col)) > 3)
         )
       )
-      # get the indexes of categorical variables having less than 3 modalities
+      # Get the indexes of categorical variables having less than 3 modalities
       cols_to_onehot_encode <- which(
         sapply(data,
           function(col) (!is.numeric(col) && length(unique(col)) <= 3)
         )
       )
-      # label encode if necessary
+      # Label encode if necessary
       if (length(cols_to_label_encode)) {
         encoded <- private$encoder_$LabelEncode(data[cols_to_label_encode])
         data <- data[, -cols_to_label_encode]
         data <- cbind(data, encoded)
       }
-      # one-hot encode if necessary
+      # One-hot encode if necessary
       if (length(cols_to_onehot_encode)) {
         encoded <- private$encoder_$OneHotEncode(data[cols_to_onehot_encode])
         data <- data[, -cols_to_onehot_encode]
@@ -156,17 +192,44 @@ naive_bayes <- R6Class("naive_bayes",
       }
       return(data)
     },
+
+    #' @description
+    #' Calculate the probability density of classifier.
+    #'
+    #' This function calculates the probability density for a given label and a
+    #' vector of observations.
+    #'
+    #' @param label The label for which the probability density should be
+    #'              calculated.
+    #' @param x The vector of observations for which the probability density
+    #'          should be calculated.
+    #'
+    #' @return The probability density for the given label and vector of
+    #'         observations.
     prob = function(label, x) {
-      mean <- self$mean_[label, ]
-      var <- self$var_[label, ]
+
+      mean <- self$theta_[label, ]
+      var <- self$sigma_[label, ]
       numerator <- exp((-(x - mean)**2) / (2 * var))
       denominator <- sqrt(2 * pi * var)
       return(numerator / denominator)
     },
-    predict_ = function(x, with_prob = FALSE) {
-      posteriors <- numeric(length(self$classes))
 
-      for (idx in seq_along(self$classes)) {
+    #' Predict the class or probabilities for a given vector using a model.
+    #'
+    #' This function predicts the class or probabilities for a given vector
+    #' using a trained model.
+    #'
+    #' @param x The input vector for prediction.
+    #' @param with_prob Logical, indicating whether to return class
+    #'                  probabilities. Default is FALSE.
+    #'
+    #' @return If with_prob is FALSE, the predicted class for the input vector.
+    #' If with_prob is TRUE, a vector of class probabilities for each class.
+    predict_ = function(x, with_prob = FALSE) {
+      posteriors <- numeric(length(self$classes_))
+
+      for (idx in seq_along(self$classes_)) {
         prior <- log(self$prior_[idx])
 
         class_conditional <- sum(log(private$prob(idx, x)))
@@ -177,7 +240,7 @@ naive_bayes <- R6Class("naive_bayes",
       if (with_prob) {
         return(metrics$softmax(posteriors))
       } else {
-        return(self$classes[which.max(posteriors)])
+        return(self$classes_[which.max(posteriors)])
       }
     }
   )
