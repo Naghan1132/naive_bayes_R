@@ -102,13 +102,13 @@ In order to use our package, you should install it from Github.
   ```R
   ypred = model$predict(Xtest)
   ```
-  ![Prediction ](screenshots/predict.png)
+  ![Prediction ](http://www.image-heberg.fr/files/1700777629603041913.png)
 
   Vous pouvez aussi obtenir les probabilités associées à chaque classe
   ```R
   probas = model$predict_proba(Xtest)
   ```
-  ![Classes probabilities](screenshots/predict-proba.png)
+  ![Classes probabilities](http://www.image-heberg.fr/files/17007776202038246646.png)
 
   ### 3.3 Evaluation
   Il y'a un ensembe de fonctions disponible dans la classe `metrics` pour evaluer les performances de votre modèle.
@@ -129,24 +129,24 @@ In order to use our package, you should install it from Github.
   ```R
   metrics$precision_score(ytest, ypred)
   ```
-  ![Some metrics](screenshots/metrics.png)
+  ![Some metrics](http://www.image-heberg.fr/files/17007776043584823103.png)
 
   ### 3.4 encoder
   Le package comporte egalement la classe `encoder` qui permet d'effectuer deux types d'encodage. Pour l'utiliser vous devez l'instancier
   ```R
   encoder_ = encoder$new()
   ```
-  #### 3.2.1 OneHotEncode
+  #### 3.4.1 OneHotEncode
   ```R
   encoder_$OneHotEncode(iris)
   ```
-  ![One hot encode](screenshots/one-hot-encode.png)
+  ![One hot encode](http://www.image-heberg.fr/files/17007777941780451472.png)
 
-  #### 3.2.2 LabelEncode
+  #### 3.4.2 LabelEncode
   ```R
   encoder_$LabelEncode(iris)
   ```
-  ![Label encode](screenshots/label-encode.png)
+  ![Label encode](http://www.image-heberg.fr/files/17007774772488433935.png)
 
   ### 3.3 naive_bayes
    #### 3.3.1 encode
