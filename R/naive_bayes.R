@@ -44,6 +44,8 @@ naive_bayes <- R6Class("naive_bayes",
     #' classifier$fit(data[, c('feature1', 'feature2')], data$class)
     #'
     fit = function(x, y) {
+      # Check intergry here !!!
+
       private$training_set <- cbind(head(x), "target" = head(y))
 
       # Encode data before fit
@@ -143,7 +145,7 @@ naive_bayes <- R6Class("naive_bayes",
         print("Training set sample :")
         print(private$training_set)
         print("Prior probas : ")
-        print(paste(self$classes_, "":"", self$prior_))
+        print(paste(self$classes_, ":", self$prior_))
         print("Conditional means : ")
         print(as.data.frame(self$theta_, row.names = self$classes_))
         print("Conditional variances : ")
@@ -162,35 +164,17 @@ naive_bayes <- R6Class("naive_bayes",
       if (sum(sapply(data, is.numeric)) == ncol(data)) {
         return(data)
       }
+
       # Initialize encoder if it's not done yet
       if (is.null(private$encoder_)) {
-        private$encoder_ <- encoder$new()
+        private$encoder_ <- one_hot_encoder$new()
       }
-      # Get the indexes of categorical variables having more than 3 modalities
-      cols_to_label_encode <- which(
-        sapply(data,
-          function(col) (!is.numeric(col) && length(unique(col)) > 3)
-        )
-      )
-      # Get the indexes of categorical variables having less than 3 modalities
-      cols_to_onehot_encode <- which(
-        sapply(data,
-          function(col) (!is.numeric(col) && length(unique(col)) <= 3)
-        )
-      )
-      # Label encode if necessary
-      if (length(cols_to_label_encode)) {
-        encoded <- private$encoder_$LabelEncode(data[cols_to_label_encode])
-        data <- data[, -cols_to_label_encode]
-        data <- cbind(data, encoded)
+
+      if (!private$encoder_$is_fitted) {
+        private$encoder_$fit(data)
       }
-      # One-hot encode if necessary
-      if (length(cols_to_onehot_encode)) {
-        encoded <- private$encoder_$OneHotEncode(data[cols_to_onehot_encode])
-        data <- data[, -cols_to_onehot_encode]
-        data <- cbind(data, encoded)
-      }
-      return(data)
+
+      return(private$encoder_$transform(data))
     },
 
     #' @description
