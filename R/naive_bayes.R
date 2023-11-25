@@ -44,7 +44,7 @@ naive_bayes <- R6Class("naive_bayes",
     #' classifier$fit(data[, c('feature1', 'feature2')], data$class)
     #'
     fit = function(x, y) {
-      private$check_integrity(x,y)
+      private$check_integrity(x, y)
       private$training_set <- cbind(head(x), "target" = head(y))
 
       # Encode data before fit
@@ -194,56 +194,70 @@ naive_bayes <- R6Class("naive_bayes",
     #' @description
     #' Checks if data inputs are valid.
     #'
-    #' This function evaluates explainatory and target variables on several criteria,
+    #' This function evaluates explainatory and target variables on several
+    #' criteria,
     #' it's an intermediate function used in fit and predict
     #'
-    #' @param X The explainatory data set, whether it's training or test.
-    #' @param Y The target data, if NULL, will act as a check integrity for prediction,
-    #'          default=NULL
+    #' @param x The explainatory data set, whether it's training or test.
+    #' @param y The target data, if NULL, will act as a check integrity for
+    #'          prediction, default=NULL
     #'
     #' @return Raises errors if not valid else void.
 
-    check_integrity = function(X,Y=NULL){
-      if(!is.null(Y)){
-        if(!is.data.frame(X)){
+    check_integrity = function(x, y = NULL) {
+      if (!is.null(y)) {
+        if (!is.data.frame(x)) {
           stop("ERROR : Explainatory variable(s) must be stored in a DataFrame")
         }
-        if(nrow(X) != length(Y)){
-          stop("ERROR : Explainatory variable(s) and target variable must have the same length")
+        if (nrow(x) != length(y)) {
+          stop("ERROR : Explainatory variable(s) and target variable must have
+                the same length")
         }
-        if(any(is.na(X)) || any(is.na(Y))){
+        if (any(is.na(x)) || any(is.na(y))) {
           stop("ERROR : You can't have any NA values in your training data")
         }
-        validTypesX <- all(sapply(X, function(x) class(x) %in% c("factor","numeric")))
-        if(!validTypesX){
-          stop("ERROR : The explainatory variable(s) can only have feature(s) of class factor, numeric or integer")
+        valid_types_x <- all(sapply(
+          x, function(x) class(x) %in% c("factor", "numeric")
+        ))
+        if (!valid_types_x) {
+          stop("ERROR : The explainatory variable(s) can only have 
+              feature(s) of class factor,numeric or integer")
         }
-        validTypeY <- is.factor(Y)
-        if(!validTypeY){
-          stop("ERROR : The explainatory variable(s) can only be of class a factor")
+        valid_type_y <- is.factor(y)
+        if (!valid_type_y) {
+          stop("ERROR : The explainatory variable(s) can only be of
+                class a factor")
         }
-        if(length(unique(Y))<2){
-          stop("ERROR : You need to at least have 2 different classes in your target variable")
+        if (length(unique(y)) < 2) {
+          stop("ERROR : You need to at least have 2 different classes in your
+              target variable")
         }
-        if("target" %in% colnames(X)){
-          stop("ERROR : Xtrain can't have a column named target")
+        if ("target" %in% colnames(x)) {
+          stop("ERROR : x_train can't have a column named target")
         }
-      }
-      else {
-        if(!is.data.frame(X)){
+      } else {
+        if (!is.data.frame(x)) {
           stop("ERROR : Explainatory variable(s) must be stored in a DataFrame")
         }
-        if(any(is.na(X))){
+        if (any(is.na(x))) {
           stop("ERROR : You can't have any NA values in your test data")
         }
-        validTypesX <- all(sapply(X, function(x) class(x) %in% c("factor","numeric")))
-        if(!validTypesX){
-          stop("ERROR : The explainatory variable(s) can only have feature(s) of class factor, numeric or integer")
+        valid_types_x <- all(sapply(
+          x, function(x) class(x) %in% c("factor", "numeric")
+        ))
+        if (!valid_types_x) {
+          stop("ERROR : The explainatory variable(s) can only have feature(s) of
+                class factor, numeric or integer")
         }
-        Xtrain <- private$training_set[,-which(colnames(private$training_set)=="target")]
-        if (!setequal(names(X), names(Xtrain)) || !setequal(sapply(X, class), sapply(Xtrain, class))) {
-          cat("ERROR : Test dataset should be of the same structure as dataset used in fit, here is the structure of the training set : \n")
-          return(str(Xtrain))
+        x_train <- private$training_set[, -which(
+          colnames(private$training_set) == "target"
+        )]
+        if (!setequal(names(x), names(x_train)) ||
+            !setequal(sapply(x, class), sapply(x_train, class))
+        ) {
+          cat("ERROR : Test dataset should be of the same structure as dataset
+              used in fit, here is the structure of the training set : \n")
+          return(str(x_train))
         }
       }
     },
