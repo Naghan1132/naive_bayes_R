@@ -120,12 +120,11 @@ naive_bayes <- R6Class("naive_bayes",
     },
 
     #' @description
-    #' This method prints a summary of the naive_bayes object,
-    #' including information about the trained model.
+    #' This method prints the naive_bayes object.
     #'
     #' @param ... Additional parameters to be passed to the print method.
     #'
-    #' @return Prints a summary of the naive_bayes object.
+    #' @return Prints of the naive_bayes object.
     #'
     #' @examples
     #' print(classifier)
@@ -139,6 +138,16 @@ naive_bayes <- R6Class("naive_bayes",
       print(paste(string_status, "object of class <naive_bayes>"))
     },
 
+    #' @description
+    #' This method prints a summary of the naive_bayes object,
+    #' including information about the trained model.
+    #'
+    #'
+    #' @return Prints a summary of the naive_bayes object.
+    #'
+    #' @examples
+    #' classifier$summary()
+    #'
     summary = function() {
       self$print()
       if (!is.null(private$training_set)) {
@@ -159,6 +168,10 @@ naive_bayes <- R6Class("naive_bayes",
     encoder_ = NULL,
     training_set = NULL,
 
+    # The function to encode categorical data
+    # data :  The data to encode
+    #
+    # Return : The enoded data
     encode = function(data) {
       # Do nothing if there is no categorical variables
       if (sum(sapply(data, is.numeric)) == ncol(data)) {
@@ -170,26 +183,27 @@ naive_bayes <- R6Class("naive_bayes",
         private$encoder_ <- one_hot_encoder$new()
       }
 
-      if (!private$encoder_$is_fitted) {
+      # Fit the encoder if it's not done yet.
+      # This condition alllow to fit in only train data
+      if (!private$encoder_$is_fitted()) {
         private$encoder_$fit(data)
       }
 
       return(private$encoder_$transform(data))
     },
 
-    #' @description
-    #' Calculate the probability density of classifier.
-    #'
-    #' This function calculates the probability density for a given label and a
-    #' vector of observations.
-    #'
-    #' @param label The label for which the probability density should be
-    #'              calculated.
-    #' @param x The vector of observations for which the probability density
-    #'          should be calculated.
-    #'
-    #' @return The probability density for the given label and vector of
-    #'         observations.
+    # Calculate the probability density of classifier.
+    #
+    # This function calculates the probability density for a given label and a
+    # vector of observations.
+    #
+    # label : The label for which the probability density should be
+    #              calculated.
+    # x : The vector of observations for which the probability density
+    #          should be calculated.
+    #
+    # Return : The probability density for the given label and vector of
+    #         observations.
     prob = function(label, x) {
 
       mean <- self$theta_[label, ]
@@ -199,17 +213,17 @@ naive_bayes <- R6Class("naive_bayes",
       return(numerator / denominator)
     },
 
-    #' Predict the class or probabilities for a given vector using a model.
-    #'
-    #' This function predicts the class or probabilities for a given vector
-    #' using a trained model.
-    #'
-    #' @param x The input vector for prediction.
-    #' @param with_prob Logical, indicating whether to return class
-    #'                  probabilities. Default is FALSE.
-    #'
-    #' @return If with_prob is FALSE, the predicted class for the input vector.
-    #' If with_prob is TRUE, a vector of class probabilities for each class.
+    # Predict the class or probabilities for a given vector using a model.
+    #
+    # This function predicts the class or probabilities for a given vector
+    # using a trained model.
+    #
+    # x : The input vector for prediction.
+    # with_prob : Logical, indicating whether to return class
+    #                  probabilities. Default is FALSE.
+    #
+    # Return : If with_prob is FALSE, the predicted class for the input vector.
+    # If with_prob is TRUE, a vector of class probabilities for each class.
     predict_ = function(x, with_prob = FALSE) {
       posteriors <- numeric(length(self$classes_))
 

@@ -46,6 +46,13 @@ print(probabilities)
 
 print(classifier)
 
+
+## ------------------------------------------------
+## Method `naive_bayes$summary`
+## ------------------------------------------------
+
+classifier$summary()
+
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
@@ -183,8 +190,7 @@ print(probabilities)
 \if{html}{\out{<a id="method-naive_bayes-print"></a>}}
 \if{latex}{\out{\hypertarget{method-naive_bayes-print}{}}}
 \subsection{Method \code{print()}}{
-This method prints a summary of the naive_bayes object,
-including information about the trained model.
+This method prints the naive_bayes object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naive_bayes$print(...)}\if{html}{\out{</div>}}
 }
@@ -197,7 +203,7 @@ including information about the trained model.
 \if{html}{\out{</div>}}
 }
 \subsection{Returns}{
-Prints a summary of the naive_bayes object.
+Prints of the naive_bayes object.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
@@ -213,8 +219,22 @@ Prints a summary of the naive_bayes object.
 \if{html}{\out{<a id="method-naive_bayes-summary"></a>}}
 \if{latex}{\out{\hypertarget{method-naive_bayes-summary}{}}}
 \subsection{Method \code{summary()}}{
+This method prints a summary of the naive_bayes object,
+including information about the trained model.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{naive_bayes$summary()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+Prints a summary of the naive_bayes object.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{classifier$summary()
+
+}
+\if{html}{\out{</div>}}
+
 }
 
 }

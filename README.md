@@ -1,22 +1,25 @@
 # NaiveBayes
 # Description
 
-Here are some different features of our package that we will present to you below:
-* train_test_split
-* encoder
-  * OneHotEncode
-  * LabelEncode
-* naive_bayes
-  * fit
-  * predict
-  * predict_proba
-  * print
-* metrics
-  * confusion_matrix
-  * accuracy_score
-  * recall_score
-  * precision_score
-  * softmax
+This package was designed as part of an academic project at the Université Lumière Lyon 2. The objective was to develop an R package following the R6 standard which implements a naive Bayesian classification.<br>
+
+The naive Bayesian classifier is a probabilistic classification method based on Bayes' theorem. The model assumes conditional independence between features, which simplifies calculations and allows rapid classification. Despite its simplicity, the naive Bayesian classifier is powerful and efficient.
+
+# Key Features
+Here are some different features of our package that we will present to you below.
+
+* **Model training** <br>
+  The package allow users to train the model by providing a training dataset with corresponding features and class labels.
+* **Prediction**
+  Once the model is trained, users will be able to make predictions on new data by providing the features, and the package will return the associated class predictions or probability of each class.
+* **Categorical data handling**<br>
+  The package supports data mixing and provides tools for encoding categorical variables.
+* **Performance evaluation** <br>
+  The package provide tools to evaluate the performance of the model, including accuracy, precision, recall and F1-measure.
+* **Documentation** <br>
+  Detailed documentation, including usage examples and explanations of settings, is be available to help users get the most out of the package.
+
+We have developed an r-shiny application which allows you to test the different functionalities of the package.
 
 ---
 
@@ -36,8 +39,9 @@ In order to use our package, you should install it from Github.
   **1.2 Install an load our package `NaiveBayes`**
 
   ```R
-  install_github("Naghan1132/naive_bayes_R/")
+  install_github("Naghan1132/naive_bayes_R")
   ```
+  
   ```R
   library(NaiveBayes)
   ```
@@ -70,48 +74,48 @@ In order to use our package, you should install it from Github.
   - The `seed` that ensures that the split results will be consistent each time the code runs.
 
   ```R
-  sets = train_test_split(iris, train_size = 0.7, stratify = 'Species', seed = 123)
+  sets <- train_test_split(iris, train_size = 0.7, stratify = 'Species', seed <- 123)
   ```
 
   - The train set
   ```R
   # 5 is the index of target variable Species
-  Xtrain = sets$train_set[-5]
-  ytrain = sets$train_set[[5]]
+  Xtrain <- sets$train_set[-5]
+  ytrain <- sets$train_set[[5]]
   ```
   - The test set
 
   ```R
-  Xtest = sets$test_set[-5]
-  ytest = sets$test_set[[5]]
+  Xtest <- sets$test_set[-5]
+  ytest <- sets$test_set[[5]]
   ```
   ![Train test split](http://www.image-heberg.fr/files/1700750227111926983.png)
 
   ### 3.2 Naive bayes classifier
-  Pour utiliser le classifier vous devez instancier la classe `naive_bayes`.
+  To use the classifier you must instantiate the `naive_bayes` class.
   ```R
-  model = naive_bayes$new()
+  model <- naive_bayes$new()
   ```
 
-  Pour entrainer le model sur le jeu d'apprentissage vous devez utiliser la methode `fit` de la classe `naive_bayes`.
+  To train the model on the training game you must use the `fit` method of the `naive_bayes` class.
   ```R
-  model <- model$fit(Xtrain, ytrain)
+  model$fit(Xtrain, ytrain)
   ```
 
-  Vous pouvez ensuite effectuez une prediction sur l'ensemble de test
+  You can then perform a prediction on the test set
   ```R
-  ypred = model$predict(Xtest)
+  ypred <- model$predict(Xtest)
   ```
   ![Prediction ](http://www.image-heberg.fr/files/1700777629603041913.png)
 
-  Vous pouvez aussi obtenir les probabilités associées à chaque classe
+  You can also get the probabilities associated with each class
   ```R
-  probas = model$predict_proba(Xtest)
+  probas <- model$predict_proba(Xtest)
   ```
   ![Classes probabilities](http://www.image-heberg.fr/files/17007776202038246646.png)
 
   ### 3.3 Evaluation
-  Il y'a un ensembe de fonctions disponible dans la classe `metrics` pour evaluer les performances de votre modèle.
+  There is a set of functions available in the `metrics` class to evaluate the performance of your model.
   
   #### 3.3.1 confusion_matrix
   ```R
@@ -131,25 +135,24 @@ In order to use our package, you should install it from Github.
   ```
   ![Some metrics](http://www.image-heberg.fr/files/17007776043584823103.png)
 
-  ### 3.4 encoder
-  Le package comporte egalement la classe `encoder` qui permet d'effectuer deux types d'encodage. Pour l'utiliser vous devez l'instancier
+  ### 3.4 one_hot_encode
+  The package also includes the encoder class `one_hot_encode` which allows you to perform an one-hot of encoding
+  
+  Create an instance of the One-Hot Encoder
   ```R
-  encoder_ = encoder$new()
+  encoder_ <- one_hot_encoder$new()
   ```
-  #### 3.4.1 OneHotEncode
+  Fit the encoder to your data
   ```R
-  encoder_$OneHotEncode(iris)
+  encoder_$fit(iris)
   ```
+  Transform your data using the fitted encoder.
+  ```R
+  encoder_$transform(iris)
+  ```
+  The `transform` method will return a modified version of your data with one-hot encoded categorical variables.
   ![One hot encode](http://www.image-heberg.fr/files/17007777941780451472.png)
 
-  #### 3.4.2 LabelEncode
-  ```R
-  encoder_$LabelEncode(iris)
-  ```
-  ![Label encode](http://www.image-heberg.fr/files/17007774772488433935.png)
-
-  ### 3.3 naive_bayes
-   #### 3.3.1 encode
-   #### 3.3.5 print
-   #### 3.3.6 prob
-   #### 3.3.7 predict_
+## R-shiny application
+We have developed an r-shiny application which allows you to test the different functionalities of ours package. This application allows users, whether novice or expert in R programming, to easily explore the capabilities of the Naive Bayesian classifier without requiring any prior knowledge in-depth programming. It allows, among other things, to train and save a model for later use.<br>
+It is available at the following address: 
