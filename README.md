@@ -89,7 +89,7 @@ In order to use our package, you should install it from Github.
   Xtest <- sets$test_set[-5]
   ytest <- sets$test_set[[5]]
   ```
-  ![Train test split](http://www.image-heberg.fr/files/1700750227111926983.png)
+  ![Train test split](https://github.com/Naghan1132/naive_bayes_R/assets/75121872/50117d37-c0f4-40bf-80a7-d80bcd8811c1)
 
   ### 3.2 Naive bayes classifier
   To use the classifier you must instantiate the `naive_bayes` class.
