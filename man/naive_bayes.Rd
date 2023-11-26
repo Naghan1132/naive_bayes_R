@@ -65,21 +65,43 @@ classifier$summary()
 
 \item{\code{prior_}}{probability of each class}
 
-\item{\code{feature_importance}}{Importance of each feature}
-
 \item{\code{feature_names_in_}}{Names of features seen during fit}
+
+\item{\code{feature_dtypes_}}{types of features seen during fit}
 }
 \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-naive_bayes-new}{\code{naive_bayes$new()}}
 \item \href{#method-naive_bayes-fit}{\code{naive_bayes$fit()}}
 \item \href{#method-naive_bayes-predict}{\code{naive_bayes$predict()}}
 \item \href{#method-naive_bayes-predict_proba}{\code{naive_bayes$predict_proba()}}
 \item \href{#method-naive_bayes-print}{\code{naive_bayes$print()}}
 \item \href{#method-naive_bayes-summary}{\code{naive_bayes$summary()}}
 \item \href{#method-naive_bayes-clone}{\code{naive_bayes$clone()}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-naive_bayes-new"></a>}}
+\if{latex}{\out{\hypertarget{method-naive_bayes-new}{}}}
+\subsection{Method \code{new()}}{
+Constructor
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{naive_bayes$new(multi_thread = FALSE, n_cluster = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{multi_thread}}{Logical, indicating whether fit method will be
+parallelize. Default is FALSE.}
+
+\item{\code{n_cluster}}{Numeric, indicating the number of cpu to use for
+parallel computing}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

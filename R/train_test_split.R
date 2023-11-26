@@ -49,7 +49,9 @@ train_test_split <- function(
     if (is.null(data[[stratify]])) {
       stop("The stratyfy column doesn't exist")
     }
-    stratified_index <- split_indices_stratified(data[[stratify]], train_size)
+    stratified_index <- split_indices_stratified(
+      as.factor(data[[stratify]]), train_size
+    )
     train_index <- unlist(stratified_index$train)
   } else {
     train_index <- sample(

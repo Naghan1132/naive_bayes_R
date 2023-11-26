@@ -96,6 +96,12 @@ In order to use our package, you should install it from Github.
   ```R
   model <- naive_bayes$new()
   ```
+  You can use also use the classifier in parallel mode by specifying `multi_thread` and the number of CPU to use `n_cluster`.
+  
+  ```R
+  model <- naive_bayes$new(multi_thread = TRUE, n_cluster=2)
+  ```
+
 
   To train the model on the training game you must use the `fit` method of the `naive_bayes` class.
   ```R
@@ -155,4 +161,6 @@ In order to use our package, you should install it from Github.
 
 ## R-shiny application
 We have developed an r-shiny application which allows you to test the different functionalities of ours package. This application allows users, whether novice or expert in R programming, to easily explore the capabilities of the Naive Bayesian classifier without requiring any prior knowledge in-depth programming. It allows, among other things, to train and save a model for later use.<br>
-It is available at the following address: 
+It is available at the following address: https://moiseberthe.shinyapps.io/naive-bayes-r-shiny/
+
+![Shiny App](Link)

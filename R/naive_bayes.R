@@ -4,6 +4,7 @@
 #' This class implements a supervised learning methods based on applying Bayes’
 #' theorem with strong (naive) feature independence assumption
 #' @importFrom R6 R6Class
+#' @import parallel
 #'
 #' @export
 naive_bayes <- R6Class("naive_bayes",
@@ -20,12 +21,36 @@ naive_bayes <- R6Class("naive_bayes",
     #' @field prior_ probability of each class
     prior_ = NULL,
 
-    #' @field feature_importance Importance of each feature
-    feature_importance = NULL,
+    # #' @field feature_importance_ Importance of each feature
+    # feature_importance_ = NULL,
 
     #' @field feature_names_in_ Names of features seen during fit
     feature_names_in_ = NULL,
 
+    #' @field feature_dtypes_ types of features seen during fit
+    feature_dtypes_ = NULL,
+
+    #' @description
+    #' Constructor
+    #'
+    #' @param multi_thread Logical, indicating whether fit method will be
+    #'                      parallelize. Default is FALSE.
+    #' @param n_cluster Numeric, indicating the number of cpu to use for
+    #'                  parallel computing
+    #'
+    initialize = function(multi_thread = FALSE, n_cluster = NULL) {
+      private$multi_thread_ <- multi_thread
+      if (private$multi_thread_) {
+        if (!is.null(n_cluster)) {
+          if ((detectCores() - 1) < n_cluster) {
+            stop("Maximum number of clusters exceeded")
+          }
+        } else {
+          n_cluster <- detectCores() - 1
+        }
+        private$n_cluster_ <- n_cluster
+      }
+    },
     #' @description
     #' This method trains a Naive Bayes classifier on the given training data.
     #'
@@ -44,36 +69,46 @@ naive_bayes <- R6Class("naive_bayes",
     #' classifier$fit(data[, c('feature1', 'feature2')], data$class)
     #'
     fit = function(x, y) {
-      private$check_integrity(x, y)
+      x <- as.data.frame(x)
+
       private$training_set <- cbind(head(x), "target" = head(y))
 
-      # Encode data before fit
-      x <- private$encode(x)
+      self$feature_names_in_ <- colnames(x)
+      self$feature_dtypes_ <- sapply(x, class)
+
 
       d <- dim(x)
       private$n_samples <- d[1]
       private$n_features <- d[2]
 
       self$classes_ <- unique(y)
-      self$feature_names_in_ <- colnames(x)
 
-      # Calculate mean of each feature by class labels
-      self$theta_ <- t(sapply(
-        self$classes_,
-        function(class_) colMeans(x[y == class_, ])
-      ))
-      # Calculate  variance of each feature by class labels
-      self$sigma_ <- t(sapply(
-        self$classes_,
-        function(class_) apply(x[y == class_, ], 2, var)
-      ))
-      # Calculate class probability
-      self$prior_ <- sapply(
-        self$classes_,
-        function(class_) sum(y == class_) / private$n_samples
-      )
-      # Calculate feature importance based on a model's parameters.
-      self$feature_importance <- (diff(self$theta_))^2 / colSums(self$sigma_)
+      private$check_integrity(x, y)
+
+      # Encode data before fit
+      x <- private$encode(x)
+
+      if (!private$multi_thread_) {
+        # Calculate mean of each feature by class labels
+        self$theta_ <- t(sapply(
+          self$classes_,
+          function(class_) colMeans(x[y == class_, ])
+        ))
+        # Calculate  variance of each feature by c©lass labels
+        self$sigma_ <- t(sapply(
+          self$classes_,
+          function(class_) apply(x[y == class_, ], 2, var)
+        ))
+        # Calculate class probability
+        self$prior_ <- sapply(
+          self$classes_,
+          function(class_) sum(y == class_) / private$n_samples
+        )
+      } else {
+        private$fit_parallel(x, y)
+      }
+      # # Calculate feature importance based on a model's parameters.
+      # self$feature_importance_ <- (diff(self$theta_))^2 / colSums(self$sigma_)
     },
 
     #' @description
@@ -91,6 +126,8 @@ naive_bayes <- R6Class("naive_bayes",
     #' print(ypred)
     #'
     predict = function(x) {
+      x <- as.data.frame(x)
+
       private$check_integrity(x)
       x <- private$encode(x)
       ypred <- apply(x, 1, function(row) private$predict_(row))
@@ -113,6 +150,8 @@ naive_bayes <- R6Class("naive_bayes",
     #' print(probabilities)
     #'
     predict_proba = function(x) {
+      x <- as.data.frame(x)
+
       x <- private$encode(x)
       ypred <- t(apply(x, 1, function(row) private$predict_(row, TRUE)))
       colnames(ypred) <- self$classes_
@@ -150,7 +189,7 @@ naive_bayes <- R6Class("naive_bayes",
     #'
     summary = function() {
       self$print()
-      if (!is.null(private$training_set)) {
+      if (!is.null(self$classes_)) {
         print("Training set sample :")
         print(private$training_set)
         print("Prior probas : ")
@@ -167,6 +206,8 @@ naive_bayes <- R6Class("naive_bayes",
     n_features = NULL,
     encoder_ = NULL,
     training_set = NULL,
+    multi_thread_ = FALSE,
+    n_cluster_ = NULL,
 
     # The function to encode categorical data
     # data :  The data to encode
@@ -191,89 +232,60 @@ naive_bayes <- R6Class("naive_bayes",
 
       return(private$encoder_$transform(data))
     },
-    #' @description
-    #' Checks if data inputs are valid.
-    #'
-    #' This function evaluates explainatory and target variables on several
-    #' criteria,
-    #' it's an intermediate function used in fit and predict
-    #'
-    #' @param x The explainatory data set, whether it's training or test.
-    #' @param y The target data, if NULL, will act as a check integrity for
-    #'          prediction, default=NULL
-    #'
-    #' @return Raises errors if not valid else void.
+
+    # Checks if data inputs are valid.
+    #
+    # This function evaluates explainatory and target variables on several
+    # criteria,
+    # it's an intermediate function used in fit and predict
+    #
+    # x : The explainatory data set, whether it's training or test.
+    # y : The target data, if NULL, will act as a check integrity for
+    #          prediction, default=NULL
+    #
+    # Return : Raises errors if not valid else void.
 
     check_integrity = function(x, y = NULL) {
+      if (any(is.na(x))) {
+        stop("You can't have any NA values in your data")
+      }
       if (!is.null(y)) {
-        if (!is.data.frame(x)) {
-          stop("ERROR : Explainatory variable(s) must be stored in a DataFrame")
+        if (is.numeric(y)) {
+          stop("Target variable should be of type factor or character")
         }
-        if (nrow(x) != length(y)) {
-          stop("ERROR : Explainatory variable(s) and target variable must have
+        if (private$n_samples != length(y)) {
+          stop("Explainatory variable(s) and target variable must have
                 the same length")
         }
-        if (any(is.na(x)) || any(is.na(y))) {
-          stop("ERROR : You can't have any NA values in your training data")
+        if (any(is.na(y))) {
+          stop("You can't have any NA values in your data")
         }
-        valid_types_x <- all(sapply(
-          x, function(x) class(x) %in% c("factor", "numeric")
-        ))
-        if (!valid_types_x) {
-          stop("ERROR : The explainatory variable(s) can only have 
-              feature(s) of class factor,numeric or integer")
-        }
-        valid_type_y <- is.factor(y)
-        if (!valid_type_y) {
-          stop("ERROR : The explainatory variable(s) can only be of
-                class a factor")
-        }
-        if (length(unique(y)) < 2) {
-          stop("ERROR : You need to at least have 2 different classes in your
+        if (length(self$classes_) < 2) {
+          stop("You need to at least have 2 different classes in your
               target variable")
         }
-        if ("target" %in% colnames(x)) {
-          stop("ERROR : x_train can't have a column named target")
-        }
       } else {
-        if (!is.data.frame(x)) {
-          stop("ERROR : Explainatory variable(s) must be stored in a DataFrame")
-        }
-        if (any(is.na(x))) {
-          stop("ERROR : You can't have any NA values in your test data")
-        }
-        valid_types_x <- all(sapply(
-          x, function(x) class(x) %in% c("factor", "numeric")
-        ))
-        if (!valid_types_x) {
-          stop("ERROR : The explainatory variable(s) can only have feature(s) of
-                class factor, numeric or integer")
-        }
-        x_train <- private$training_set[, -which(
-          colnames(private$training_set) == "target"
-        )]
-        if (!setequal(names(x), names(x_train)) ||
-            !setequal(sapply(x, class), sapply(x_train, class))
+        if (!setequal(names(x), self$feature_names_in_) ||
+            !setequal(sapply(x, class), self$feature_dtypes_)
         ) {
-          cat("ERROR : Test dataset should be of the same structure as dataset
-              used in fit, here is the structure of the training set : \n")
-          return(str(x_train))
+          stop("Test dataset should be of the same structure as dataset
+              used in fit.")
         }
       }
     },
-    #' @description
-    #' Calculate the probability density of classifier.
-    #'
-    #' This function calculates the probability density for a given label and a
-    #' vector of observations.
-    #'
-    #' @param label The label for which the probability density should be
-    #'              calculated.
-    #' @param x The vector of observations for which the probability density
-    #'          should be calculated.
-    #'
-    #' @return The probability density for the given label and vector of
-    #'         observations.
+
+    # Calculate the probability density of classifier.
+    #
+    # This function calculates the probability density for a given label and a
+    # vector of observations.
+    #
+    # @param label The label for which the probability density should be
+    #              calculated.
+    # @param x The vector of observations for which the probability density
+    #          should be calculated.
+    #
+    # @return The probability density for the given label and vector of
+    #         observations.
     prob = function(label, x) {
 
       mean <- self$theta_[label, ]
@@ -310,6 +322,36 @@ naive_bayes <- R6Class("naive_bayes",
       } else {
         return(self$classes_[which.max(posteriors)])
       }
+    },
+
+    # This method compute model parameters mean, var and class probability
+    #
+    # @param x A data frame or matrix containing the feature variables.
+    # @param y A vector or factor containing the class labels.
+    fit_parallel = function(x, y) {
+
+      # Create parallel cluster
+      cl <- makeCluster(private$n_cluster_)
+
+      # Parallel compute mean of each feature by class labels©
+      mean_list <- parLapply(cl, self$classes_, function(class_) {
+        colMeans(x[y == class_, ])
+      })
+      self$theta_ <- t(do.call(cbind, mean_list))
+
+      # Parallel compute variance of each feature by class labels©
+      var_list <- parLapply(cl, self$classes_, function(class_) {
+        apply(x[y == class_, ], 2, var)
+      })
+      self$sigma_ <- t(do.call(cbind, var_list))
+
+      # Parallel compute class probability
+      prior_list <- parLapply(cl, self$classes_, function(class_) {
+        sum(y == class_) / private$n_samples
+      })
+      self$prior_ <- unlist(prior_list)
+
+      stopCluster(cl)
     }
   )
 )

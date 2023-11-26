@@ -36,10 +36,46 @@ one_hot_encoder <- R6Class("one_hot_encoder",
       if (!private$check_unique_values(data)) {
         stop("Unseen modal in XTest comapared to XTrain")
       }
-      for (var in private$columns) {
-        encoded_data <- model.matrix(~ . - 1, data = data[var])
+      n_zeros <- as.data.frame(rep(0, nrow(data)))
+      encoded_data <- NULL
+      for (col in private$columns) {
+
+        # If feature has more than one value
+        if (length(unique(data[, col])) > 1) {
+          encoded_data <- model.matrix(~ . - 1, data = data[col])
+        } else {
+          # Create column with 1
+          var <- unique(data[, col])[1]
+          col_name <- paste(col, var, sep = "")
+          if (!is.null(encoded_data)) {
+            encoded_data <- cbind(
+              encoded_data,
+              setNames(as.data.frame(rep(1, nrow(data))), col_name)
+            )
+
+          } else {
+            encoded_data <- setNames(
+              as.data.frame(rep(1, nrow(data))),
+              col_name
+            )
+          }
+        }
+
+        # Binding existing modals that are in the fit but not in the
+        # transform as a column with "[var][modal]" name format filled with 0
+        for (var in setdiff(
+          private$unique_values[[as.character(col)]],
+          unique(data[, col])
+        )) {
+          col_name <- paste(col, var, sep = "")
+          encoded_data <- cbind(encoded_data, setNames(n_zeros, col_name))
+        }
+
+        # Bindind encoded columns to data
         data <- cbind(data, encoded_data[, sort(colnames(encoded_data))])
-        data <- data[, -which(colnames(data) == var)]
+
+        # Deleting original categorical column
+        data <- data[, -which(colnames(data) == col)]
       }
       return(data)
     },
@@ -59,10 +95,11 @@ one_hot_encoder <- R6Class("one_hot_encoder",
     check_unique_values = function(data) {
       is_valid <- TRUE
       for (col in private$columns){
-        if (!setequal(
+        # Checking new label 
+        if (length(setdiff(
           unique(data[, col]),
           private$unique_values[[as.character(col)]]
-        )) {
+        )) > 0) {
           is_valid <- FALSE
           return(is_valid)
         }
