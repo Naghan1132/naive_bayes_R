@@ -163,4 +163,5 @@ In order to use our package, you should install it from Github.
 We have developed an r-shiny application which allows you to test the different functionalities of ours package. This application allows users, whether novice or expert in R programming, to easily explore the capabilities of the Naive Bayesian classifier without requiring any prior knowledge in-depth programming. It allows, among other things, to train and save a model for later use.<br>
 It is available at the following address: https://moiseberthe.shinyapps.io/naive-bayes-r-shiny/
 
-![Shiny App](Link)
+![Shiny App](https://github.com/Naghan1132/naive_bayes_R/assets/75121872/283e9bd6-3205-48ba-8a49-2f0e5f17369a)
+
